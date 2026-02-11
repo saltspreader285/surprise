@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiline Flip Cards Deck</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+
+.card-stack {
+  position: relative;
+  width: 250px;
+  height: 380px;
+  perspective: 1200px;
+}
+
+.card {
+  position: absolute;
+  width: 250px;
+  height: 380px;
+  border-radius: 15px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.8s, top 0.5s, z-index 0.5s, left 0.8s, width 0.8s, height 0.8s;
+  transform-origin: center center;
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: white;
+}
+
+.card-front {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  flex-direction: column;
+}
+
+.card-back {
+  background: #000;
+  transform: rotateY(180deg);
+  overflow: hidden;
+}
+
+.card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+/* FLIP */
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+/* LANDSCAPE CARD */
+.card.landscape.flipped {
+  width: 380px;
+  height: 250px;
+}
+
+/* INITIAL STACK */
+.card:nth-child(1) { top: 0px; z-index: 3; left: 0px; }
+.card:nth-child(2) { top: 12px; z-index: 2; left: 0px; }
+.card:nth-child(3) { top: 24px; z-index: 1; left: 0px; }
+
+</style>
+</head>
+
+<body>
+
+<div class="card-stack">
+
+  <!-- CARD 1 -->
+  <div class="card" data-index="0">
+    <div class="card-front">
+      <h2>blah blah blah</h2>
+      <p>blah bah blah<br>blah blah blah</p>
+      <p>blah blah</p>
+    </div>
+    <div class="card-back">
+      <img src="https://picsum.photos/300/400?1" alt="Card 1">
+    </div>
+  </div>
+
+  <!-- CARD 2 -->
+  <div class="card" data-index="1">
+    <div class="card-front">
+      <h2>blah blah</h2>
+      <p>blah blah blah<br>blah blah blah</p>
+      <p>blah blah</p>
+    </div>
+    <div class="card-back">
+      <img src="https://picsum.photos/300/400?2" alt="Card 2">
+    </div>
+  </div>
+
+  <!-- CARD 3 (LANDSCAPE) -->
+  <div class="card landscape" data-index="2">
+    <div class="card-front">
+      <h2>blah blah</h2>
+      <p>blah blah blah blah blah<br>blah blah blah blah</p>
+      <p>blah blah</p>
+    </div>
+    <div class="card-back">
+      <img src="https://picsum.photos/400/300?3" alt="Card 3">
+    </div>
+  </div>
+
+</div>
+
+<audio id="bgMusic" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const cards = Array.from(document.querySelectorAll(".card"));
+const bgMusic = document.getElementById("bgMusic");
+let musicStarted = false;
+
+// Store deck position & side position for each card
+cards.forEach((card, i) => {
+  card.dataset.deckTop = card.style.top;
+  card.dataset.deckLeft = card.style.left;
+  card.dataset.deckZ = card.style.zIndex;
+
+  card.dataset.sideTop = `${i * 10}px`; // slightly offset for stacked side look
+  card.dataset.sideLeft = `300px`;       // distance to slide right
+  card.dataset.sideZ = `${i + 1}`;       // side stack order
+});
+
+cards.forEach(card => {
+  card.addEventListener("click", () => {
+    // Start music once
+    if (!musicStarted) {
+      bgMusic.play().catch(() => {});
+      musicStarted = true;
+    }
+
+    if (!card.classList.contains("flipped")) {
+      // Flip and slide to side
+      card.classList.add("flipped");
+      card.style.top = card.dataset.sideTop;
+      card.style.left = card.dataset.sideLeft;
+      card.style.zIndex = card.dataset.sideZ;
+    } else {
+      // Flip back to deck
+      card.classList.remove("flipped");
+      card.style.top = card.dataset.deckTop;
+      card.style.left = card.dataset.deckLeft;
+      card.style.zIndex = card.dataset.deckZ;
+    }
+  });
+});
+</script>
+
+</body>
+</html>
